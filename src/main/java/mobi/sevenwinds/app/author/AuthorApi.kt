@@ -9,8 +9,8 @@ import org.joda.time.DateTime
 
 fun NormalOpenAPIRoute.author() {
     route("/author") {
-        route("/add").post<Unit, AuthorRecord, AuthorCreateRecord>(info("Add author")) { param, body ->
-            respond(AuthorService.addRecord(body))
+        route("/add").post<Unit, AuthorRecord, AuthorCreateRecord>(info("Добавить автора")) { param, body ->
+            respond(AuthorService.createAuthor(body))
         }
     }
 }

@@ -4,15 +4,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import retrofit2.http.Body
 
 object AuthorService {
-    suspend fun createAuthor(fullName: String): AuthorEntity = withContext(Dispatchers.IO) {
+    suspend fun createAuthor(body: AuthorCreateRecord): AuthorRecord = withContext(Dispatchers.IO) {
         transaction {
             val entity = AuthorEntity.new {
-                this.fullName = fullName
+                this.fullName = body.fullName
                 this.createdAt = DateTime.now()
             }
-            return@transaction entity
+
+            return@transaction entity.toResponse()
         }
     }
 }
