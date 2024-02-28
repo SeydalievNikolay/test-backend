@@ -26,16 +26,19 @@ class BudgetApiKtTest : ServerTest() {
         addRecord(BudgetRecord(2020, 5, 40, BudgetType.Приход))
         addRecord(BudgetRecord(2030, 1, 1, BudgetType.Расход))
 
+        val expectedTotal = 5
+        val expectedItemsSize = 3
+        val expectedTotalByType = 105
+
         RestAssured.given()
             .queryParam("limit", 3)
             .queryParam("offset", 1)
             .get("/budget/year/2020/stats")
             .toResponse<BudgetYearStatsResponse>().let { response ->
-                println("${response.total} / ${response.items} / ${response.totalByType}")
 
-                Assert.assertEquals(5, response.total)
-                Assert.assertEquals(3, response.items.size)
-                Assert.assertEquals(105, response.totalByType[BudgetType.Приход.name])
+                Assert.assertEquals(expectedTotal, response.total)
+                Assert.assertEquals(expectedItemsSize, response.items.size)
+                Assert.assertEquals(expectedTotalByType, response.totalByType[BudgetType.Приход.name])
             }
     }
 
@@ -47,18 +50,22 @@ class BudgetApiKtTest : ServerTest() {
         addRecord(BudgetRecord(2020, 1, 30, BudgetType.Приход))
         addRecord(BudgetRecord(2020, 5, 400, BudgetType.Приход))
 
-        // expected sort order - month ascending, amount descending
-
         RestAssured.given()
             .get("/budget/year/2020/stats?limit=100&offset=0")
             .toResponse<BudgetYearStatsResponse>().let { response ->
                 println(response.items)
 
+                Assert.assertEquals(1, response.items[0].month)
+                Assert.assertEquals(5, response.items[1].month)
+                Assert.assertEquals(5, response.items[2].month)
+                Assert.assertEquals(5, response.items[3].month)
+                Assert.assertEquals(5, response.items[4].month)
+
                 Assert.assertEquals(30, response.items[0].amount)
-                Assert.assertEquals(5, response.items[1].amount)
-                Assert.assertEquals(400, response.items[2].amount)
-                Assert.assertEquals(100, response.items[3].amount)
-                Assert.assertEquals(50, response.items[4].amount)
+                Assert.assertEquals(50, response.items[1].amount)
+                Assert.assertEquals(100, response.items[2].amount)
+                Assert.assertEquals(400, response.items[3].amount)
+                Assert.assertEquals(5, response.items[4].amount)
             }
     }
 
